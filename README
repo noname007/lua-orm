@@ -1,0 +1,12 @@
+## lua orm
+
+感觉写 sql 费劲，就造个轮子。或许这个玩意并没什么卵用，最重要的是自己写的开心就好。。。。
+
+yii2 的query builder 太好用了，就防着造的。当然还没有造完。里面也可能有大bug，具体的看下test.lua。
+
+test.lua 是一些测试的代码。基本上上写写测测。:)
+
+
+
+开始放于orange网关中。 https://github.com/thisverygoodhhhh/orange/blob/orm/orange/store/query.lua
+
