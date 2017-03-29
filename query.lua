@@ -290,6 +290,25 @@ function _M:join( type, table, on, opts )
 end
 
 function _M:groupBy( columns )
+
+    local value_type  =  type(columns)
+
+    if value_type == 'string' then
+
+        self.sql.groupBy = columns
+
+    elseif value_type ==  'table' then
+
+        local r = {}
+
+        for k,v in pairs(columns) do
+            r[#r + 1] = k .. (v or '')
+        end
+
+        self.sql.groupBy =  table.concat(r,',')
+    end
+
+
     return self
 end
 
@@ -305,7 +324,7 @@ function _M:union( sql )
 
     if value_type == 'string' then
         self.sql.union = sql
-    elseif value_type =  'function' then
+    elseif value_type ==  'function' then
         local r = sql()
         self.sql.union = (type(r) == 'string') and r or error('calculated result by build_where(table) illegal')
     end
@@ -332,7 +351,7 @@ function _M:orderBy( columns )
 
         self.sql.orderBy = columns
 
-    elseif value_type =  'table' then
+    elseif value_type ==  'table' then
 
         local r = {}
 
@@ -349,13 +368,12 @@ end
 
 function _M:all( ... )
     return self
-
 end
 
 function _M:one( ... )
     return self
-
 end
+
 return _M
 
 
