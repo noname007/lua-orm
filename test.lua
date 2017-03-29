@@ -26,7 +26,7 @@ local r = query:find('user'):select('name,pwd'):where{
         }
 }
 
-travaltable(r.sql)
+print(r:getSql())
 
 
 local r = query:find('user'):select('name,pwd'):where{

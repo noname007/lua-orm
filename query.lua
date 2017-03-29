@@ -7,10 +7,36 @@ local _M  = {}
 -- local db = require 'orange.store.mysql_db'
 
 
-local sql = {}
+local sql_key = {
+    'select',
+    -- 'distinct',
+    'from',
+    -- 'on',
+    'where',
+    'groupBy',
+    'having',
+    'orderBy',
+    'limit',
+    'offset'
+}
 
-local function build()
+local sql_v = {
+    select = 'select'
+}
 
+local function build(sql_arr)
+    local r = {}
+
+    for k,v in ipairs(sql_key) do
+        print(k,v)
+        print(sql_arr[v])
+
+        if sql_arr[v] then
+            r[#r + 1] = ' '.. v .. ' ' .. sql_arr[v]
+        end
+    end
+
+    return table.concat(r,' ')
 end
 
 
@@ -21,9 +47,10 @@ function _M:find( table_name )
     end
 
     local t = {}
-    t.table_name = table_name
     t._attributes = {}
     t.sql = {}
+    t.sql.from = table_name
+    t._sql_str = nil
 
     setmetatable(t,{
             __index=self,
@@ -47,12 +74,37 @@ end
 
 
 function _M:distinct( yes )
-    self.sql.distinct = yes
+    self.sql.distinct = yes and 'distinct' or ''
     return self
 end
 
 function _M:from( table )
-    self.sql.table = table
+    local value_type = type(table)
+    if value_type == 'string' then
+
+        self.sql.from = table
+
+    elseif value_type ==  'function' then
+
+        local r = table()
+        self.sql.from = (type(r) == 'string') and r or error('calculated result by build_where(table) illegal')
+
+    elseif value_type == 'table' then
+
+        local r = {}
+
+        if table[1] then
+            r = table
+        else
+            for k,v in pairs(table) do
+                r[#r + 1] =  k .. ' ' .. i
+            end
+        end
+
+        self.sql.from = table.concat(r,',')
+    end
+
+
     return self
 
 end
@@ -313,6 +365,7 @@ function _M:groupBy( columns )
 end
 
 function _M:having( condition, opts )
+    self.sql.having = condition
     return self
 end
 
@@ -364,6 +417,15 @@ function _M:orderBy( columns )
 
     return self
 
+end
+
+function _M:getSql()
+    
+    if not self._sql_str then
+        self._sql_str = build(self.sql)
+    end
+
+    return self._sql_str
 end
 
 function _M:all( ... )
